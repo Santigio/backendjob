@@ -13,7 +13,7 @@
 
 6. OpenAPI 3.0 - This is a specification for building APIs that allows for easy documentation and testing of API endpoints. It can be used to define the API endpoints and request/response schemas for this service.
 
-# HTTP APIs
+## HTTP APIs
 
 + List top users by internet usage
 
@@ -27,7 +27,7 @@ Parameters:
   page (optional, integer): The page number for the results. Defaults to 1.
   limit (optional, integer): The number of results per page. Defaults to 10.
   
-  + Response:
+Response:
   
   200: Success. Returns a list of users sorted by internet usage in descending order. Each user has the following fields:
   id (string): The unique identifier for the user.
@@ -53,7 +53,7 @@ Response:
   usage (integer): The total internet usage for the specified time period (in bytes).
   created_at (string): The date and time when the user was created (in ISO 8601 format).
   
-+ Database Model
+## Database Model
 
   The database model for this service will consist of a single collection called "users", which will store the following fields for each user:
   id (string): The unique identifier for the user.
