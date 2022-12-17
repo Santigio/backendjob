@@ -64,4 +64,133 @@ Response:
 
 
 
++++ To ingest the provided dataset into the service's database, we can create a script that reads the data from the file and inserts it into the "users" collection in the database.
+
+--- Here is an example of how this script might work:
+
+1. Connect to the database using Mongoose.
+2. Read the data from the file and parse it into a JavaScript object.
+3. Iterate through the object and create a new "User" model for each record.
+4. Save the model to the database.
+
+
+Here is a code to demonstrates how this script might work:
+
+const mongoose = require('mongoose');
+const User = require('./models/user');
+
+// Connect to the database
+mongoose.connect('mongodb://localhost:27017/internet_usage', { useNewUrlParser: true, useUnifiedTopology: true });
+
+// Read the data from the file and parse it into a JavaScript object
+const data = require('./data.json');
+
+// Iterate through the data and create a new User model for each record
+data.forEach(record => {
+  const user = new User({
+    id: record.id,
+    name: record.name,
+    usage: record.usage,
+    created_at: record.created_at
+  });
+
+  // Save the model to the database
+  user.save();
+});
+
+// Close the database connection
+mongoose.connection.close();
+
+
+This script can be run from the command line using the following command:
+  node ingestion_script.js
+
+
+
+--- To implement the paginated HTTP API to list top users by their internet usage, we can create an endpoint that accepts the following parameters:
+
+  time_period (optional, one of "1d", "7d", "30d"): The time period for which to retrieve the top users. Defaults to "1d".
+  page (optional, integer): The page number for the results. Defaults to 1.
+  limit (optional, integer): The number of results per page. Defaults to 10.
+  The endpoint should return a list of users sorted by internet usage in descending order, with the specified number of results per page.
+
+Here is an example of how this endpoint might work:
+
+const express = require('express');
+const router = express.Router();
+const User = require('../models/user');
+
+// List top users by internet usage
+router.get('/top', async (req, res) => {
+  try {
+    // Parse the query parameters
+    const timePeriod = req.query.time_period || '1d';
+    const page = parseInt(req.query.page) || 1;
+    const limit = parseInt(req.query.limit) || 10;
+
+    // Set the date range based on the time period
+    let startDate, endDate;
+    if (timePeriod === '1d') {
+      startDate = new Date();
+      startDate.setDate(startDate.getDate() - 1);
+      endDate = new Date();
+    } else if (timePeriod === '7d') {
+      startDate = new Date();
+      startDate.setDate(startDate.getDate() - 7);
+      endDate = new Date();
+    } else if (timePeriod === '30d') {
+      startDate = new Date();
+      startDate.setDate(startDate.getDate() - 30);
+      endDate = new Date();
+    }
+
+    // Retrieve the top users from the database
+    const users = await User.find({
+      created_at: {
+        $gte: startDate,
+        $lte: endDate
+      }
+    })
+      .sort({ usage: -1 })
+      .skip((page - 1) * limit)
+      .limit(limit);
+
+    // Send the results back to the client
+    res.send(users);
+  } catch (error) {
+    res.status(500).send(error);
+  }
+});
+
+module.exports = router;
+
+
+This endpoint can be accessed by sending a GET request to the following URL:
+  /api/users/top?time_period=7d&page=2&limit=20
+
+This will return the top 20 users for the past 7 days, starting from page 2.
+
+
+--- To implement the user details HTTP API to search users by their exact name, we can create an endpoint that accepts a name parameter and returns the matching user's internet usage consumption.
+
+Here is an example of how this endpoint might work:
+
+const express = require('express');
+const router = express.Router();
+const User = require('../models/user');
+
+// Search users by name
+router.get('/search', async (req, res) => {
+  try {
+    // Retrieve the user from the database
+    const user = await User.findOne({ name: req.query.name });
+
+    // Send the results back to the client
+    res.send(user);
+  } catch (error) {
+    res.status(500).send(error);
+  }
+});
+
+module.exports = router;
 
