@@ -1,3 +1,20 @@
+
+## Setup 
+
+1. Install Node.js and MongoDB on your machine.
+2. Clone the repository for the service and navigate to the project directory.
+3. Install the project dependencies by running npm install.
+4. Start the MongoDB server by running mongod.
+5. Create a .env file in the project directory and set the following environment variables:
+6. MONGODB_URI: The URI of the MongoDB instance to connect to (e.g. "mongodb://localhost:27017/my_database").
+PORT: The port on which the service should run (e.g. "3000").
+7. Start the service by running npm start.
+8. To run tests, use the npm test command.
+9. To generate OpenAPI documentation, use the npm run docs command. This will create a docs directory with the generated documentation.
+
+
+
+
 ## Tech Stack
 
 + For this service, I would recommend using the following tech stack:
